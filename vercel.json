@@ -2,14 +2,23 @@
   "version": 2,
   "builds": [
     {
-      "src": "main.py",
+      "src": "app/main.py",
       "use": "@vercel/python"
     }
   ],
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/main.py"
+      "destination": "/app/main.py"
     }
-  ]
+  ],
+  "regions": [
+    "iad1"
+  ],
+  "functions": {
+    "app/main.py": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
 }
