@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "Edit Job Posting" if job else "Create Job Posting" }} — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <nav class="flex items-center space-x-2 text-sm text-gray-500">
+            <a href="/jobs" class="hover:text-gray-700 transition-colors">Jobs</a>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+            <span class="text-gray-900 font-medium">{{ "Edit Job Posting" if job else "Create Job Posting" }}</span>
+        </nav>
+    </div>
+
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h1 class="text-xl font-semibold text-gray-900">{{ "Edit Job Posting" if job else "Create Job Posting" }}</h1>
+            <p class="mt-1 text-sm text-gray-500">{{ "Update the details for this job posting." if job else "Fill in the details below to create a new job posting." }}</p>
+        </div>
+
+        <form method="POST" action="{{ '/jobs/' ~ job.id if job else '/jobs' }}" class="px-6 py-5 space-y-6">
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Job Title <span class="text-red-500">*</span></label>
+                <input type="text" name="title" id="title" required maxlength="128"
+                    value="{{ job.title if job else '' }}"
+                    placeholder="e.g. Senior Backend Engineer"
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                {% if errors and errors.title %}
+                <p class="mt-1 text-sm text-red-600">{{ errors.title }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700">Description <span class="text-red-500">*</span></label>
+                <p class="mt-1 text-xs text-gray-500">Supports Markdown formatting (headings, lists, bold, etc.)</p>
+                <textarea name="description" id="description" required rows="8"
+                    placeholder="Enter the job description, responsibilities, and qualifications..."
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 font-mono">{{ job.description if job else '' }}</textarea>
+                {% if errors and errors.description %}
+                <p class="mt-1 text-sm text-red-600">{{ errors.description }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label for="department_id" class="block text-sm font-medium text-gray-700">Department <span class="text-red-500">*</span></label>
+                    <select name="department_id" id="department_id" required
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                        <option value="">Select a department</option>
+                        {% for department in departments %}
+                        <option value="{{ department.id }}" {% if job and job.department_id == department.id %}selected{% endif %}>{{ department.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors and errors.department_id %}
+                    <p class="mt-1 text-sm text-red-600">{{ errors.department_id }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="hiring_manager_id" class="block text-sm font-medium text-gray-700">Hiring Manager <span class="text-red-500">*</span></label>
+                    <select name="hiring_manager_id" id="hiring_manager_id" required
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                        <option value="">Select a hiring manager</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}" {% if job and job.hiring_manager_id == user.id %}selected{% endif %}>{{ user.full_name if user.full_name else user.email }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors and errors.hiring_manager_id %}
+                    <p class="mt-1 text-sm text-red-600">{{ errors.hiring_manager_id }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700">Location <span class="text-red-500">*</span></label>
+                    <input type="text" name="location" id="location" required maxlength="64"
+                        value="{{ job.location if job else '' }}"
+                        placeholder="e.g. Remote, New York, NY"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                    {% if errors and errors.location %}
+                    <p class="mt-1 text-sm text-red-600">{{ errors.location }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="job_type" class="block text-sm font-medium text-gray-700">Job Type <span class="text-red-500">*</span></label>
+                    <select name="job_type" id="job_type" required
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                        <option value="">Select job type</option>
+                        {% for type_option in job_types %}
+                        <option value="{{ type_option }}" {% if job and job.type == type_option %}selected{% endif %}>{{ type_option }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors and errors.job_type %}
+                    <p class="mt-1 text-sm text-red-600">{{ errors.job_type }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label for="salary_min" class="block text-sm font-medium text-gray-700">Salary Min</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span class="text-gray-500 text-sm">$</span>
+                        </div>
+                        <input type="number" name="salary_min" id="salary_min" min="0" step="1000"
+                            value="{{ job.salary_min if job and job.salary_min else '' }}"
+                            placeholder="e.g. 80000"
+                            class="block w-full rounded-md border border-gray-300 pl-7 pr-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                    </div>
+                    {% if errors and errors.salary_min %}
+                    <p class="mt-1 text-sm text-red-600">{{ errors.salary_min }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="salary_max" class="block text-sm font-medium text-gray-700">Salary Max</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span class="text-gray-500 text-sm">$</span>
+                        </div>
+                        <input type="number" name="salary_max" id="salary_max" min="0" step="1000"
+                            value="{{ job.salary_max if job and job.salary_max else '' }}"
+                            placeholder="e.g. 150000"
+                            class="block w-full rounded-md border border-gray-300 pl-7 pr-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                    </div>
+                    {% if errors and errors.salary_max %}
+                    <p class="mt-1 text-sm text-red-600">{{ errors.salary_max }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700">Status <span class="text-red-500">*</span></label>
+                <select name="status" id="status" required
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                    {% for status_option in statuses %}
+                    <option value="{{ status_option }}" {% if job and job.status == status_option %}selected{% elif not job and status_option == 'Draft' %}selected{% endif %}>{{ status_option }}</option>
+                    {% endfor %}
+                </select>
+                {% if errors and errors.status %}
+                <p class="mt-1 text-sm text-red-600">{{ errors.status }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="/jobs"
+                    class="rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Cancel
+                </a>
+                <button type="submit"
+                    class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    {{ "Update Job Posting" if job else "Create Job Posting" }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

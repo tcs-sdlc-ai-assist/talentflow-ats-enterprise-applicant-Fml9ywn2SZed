@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Feedback — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <a href="/interviews/my" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+            <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            Back to My Interviews
+        </a>
+    </div>
+
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h1 class="text-xl font-semibold text-gray-900">
+                {% if readonly %}
+                    Interview Feedback (Submitted)
+                {% else %}
+                    Submit Interview Feedback
+                {% endif %}
+            </h1>
+        </div>
+
+        <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Interview Details</h2>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Candidate</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if interview.application and interview.application.candidate %}
+                            {{ interview.application.candidate.first_name }} {{ interview.application.candidate.last_name }}
+                        {% else %}
+                            <span class="text-gray-400">N/A</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Candidate Email</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if interview.application and interview.application.candidate %}
+                            <a href="mailto:{{ interview.application.candidate.email }}" class="text-primary-600 hover:text-primary-800 transition-colors">{{ interview.application.candidate.email }}</a>
+                        {% else %}
+                            <span class="text-gray-400">N/A</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Job Position</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if interview.application and interview.application.job_posting %}
+                            {{ interview.application.job_posting.title }}
+                        {% else %}
+                            <span class="text-gray-400">N/A</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Department</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if interview.application and interview.application.job_posting and interview.application.job_posting.department %}
+                            {{ interview.application.job_posting.department.name }}
+                        {% else %}
+                            <span class="text-gray-400">N/A</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Scheduled Time</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if interview.scheduled_at %}
+                            {{ interview.scheduled_at | format_datetime }}
+                        {% else %}
+                            <span class="text-gray-400">Not scheduled</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Application Stage</dt>
+                    <dd class="mt-1">
+                        {% if interview.application %}
+                            {% set stage = interview.application.stage %}
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ get_stage_bg(stage) }} {{ get_stage_text(stage) }}">
+                                {{ format_stage_name(stage) }}
+                            </span>
+                        {% else %}
+                            <span class="text-gray-400 text-sm">N/A</span>
+                        {% endif %}
+                    </dd>
+                </div>
+            </dl>
+        </div>
+
+        {% if readonly %}
+        <div class="px-6 py-5">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Submitted Feedback</h2>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                <div class="flex items-center space-x-1">
+                    {% for i in range(1, 6) %}
+                    <svg class="h-6 w-6 {% if interview.rating and i <= interview.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    {% endfor %}
+                    <span class="ml-2 text-sm text-gray-600">({{ interview.rating }}/5)</span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Feedback Notes</label>
+                <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-sm text-gray-800 whitespace-pre-wrap">{% if interview.feedback_notes %}{{ interview.feedback_notes }}{% else %}<span class="text-gray-400 italic">No notes provided.</span>{% endif %}</div>
+            </div>
+
+            <div class="mt-6 flex items-center">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <span class="text-sm text-green-700 font-medium">Feedback has been submitted for this interview.</span>
+            </div>
+        </div>
+        {% else %}
+        <form method="POST" action="/interviews/{{ interview.id }}/feedback" class="px-6 py-5 space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Rating <span class="text-red-500">*</span></label>
+                <div class="flex flex-col space-y-3">
+                    <div class="flex items-center space-x-4">
+                        {% for i in range(1, 6) %}
+                        <label class="relative flex items-center cursor-pointer group">
+                            <input type="radio" name="rating" value="{{ i }}" class="sr-only peer" {% if i == 3 %}checked{% endif %} required>
+                            <div class="flex items-center space-x-1 px-3 py-2 rounded-lg border border-gray-200 peer-checked:border-primary-500 peer-checked:bg-primary-50 hover:bg-gray-50 transition-colors">
+                                <span class="text-sm font-medium text-gray-700 peer-checked:text-primary-700">{{ i }}</span>
+                                <svg class="h-5 w-5 text-gray-300 peer-checked:text-yellow-400 group-hover:text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 px-1">
+                        <span>Poor</span>
+                        <span>Below Average</span>
+                        <span>Average</span>
+                        <span>Good</span>
+                        <span>Excellent</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label for="feedback_notes" class="block text-sm font-medium text-gray-700 mb-1">Feedback Notes</label>
+                <p class="text-xs text-gray-500 mb-2">Provide detailed feedback about the candidate's performance, strengths, and areas for improvement.</p>
+                <textarea
+                    id="feedback_notes"
+                    name="feedback_notes"
+                    rows="8"
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                    placeholder="Share your observations about the candidate's technical skills, communication, problem-solving ability, cultural fit, etc."
+                ></textarea>
+            </div>
+
+            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="/interviews/my" class="rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors">
+                    Submit Feedback
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var radioInputs = document.querySelectorAll('input[name="rating"]');
+        radioInputs.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                radioInputs.forEach(function(r) {
+                    var container = r.closest('label').querySelector('div');
+                    var star = container.querySelector('svg');
+                    if (r.checked) {
+                        container.classList.add('border-primary-500', 'bg-primary-50');
+                        container.classList.remove('border-gray-200');
+                        star.classList.add('text-yellow-400');
+                        star.classList.remove('text-gray-300');
+                    } else {
+                        container.classList.remove('border-primary-500', 'bg-primary-50');
+                        container.classList.add('border-gray-200');
+                        star.classList.remove('text-yellow-400');
+                        star.classList.add('text-gray-300');
+                    }
+                });
+            });
+        });
+
+        var checkedRadio = document.querySelector('input[name="rating"]:checked');
+        if (checkedRadio) {
+            checkedRadio.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+{% endblock %}

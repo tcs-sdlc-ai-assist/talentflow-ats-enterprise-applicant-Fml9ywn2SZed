@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Interviews — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="sm:flex sm:items-center sm:justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Interviews</h1>
+        <p class="mt-1 text-sm text-gray-500">Manage and track all scheduled interviews.</p>
+    </div>
+    {% if current_user and current_user.role in ['admin', 'hiring_manager', 'recruiter'] %}
+    <div class="mt-4 sm:mt-0">
+        <a href="/interviews/schedule" class="inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors">
+            <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Schedule Interview
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="mb-6">
+    <form method="GET" action="/interviews" class="flex flex-col sm:flex-row gap-3">
+        <div class="flex-1">
+            <label for="search" class="sr-only">Search interviews</label>
+            <div class="relative">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                </div>
+                <input type="text" name="search" id="search" value="{{ search or '' }}" placeholder="Search by candidate or job title..." class="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 text-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+            </div>
+        </div>
+        <div>
+            <label for="status_filter" class="sr-only">Filter by status</label>
+            <select name="status_filter" id="status_filter" class="block w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                <option value="">All Statuses</option>
+                <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="pending_feedback" {% if status_filter == 'pending_feedback' %}selected{% endif %}>Pending Feedback</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors">
+                <svg class="mr-2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+                </svg>
+                Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+{% if interviews and interviews | length > 0 %}
+<div class="overflow-hidden bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 sm:pl-6">Candidate</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Job Title</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Interviewer</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Scheduled Date/Time</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Rating</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Feedback</th>
+                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                        <span class="sr-only">Actions</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+                {% for interview in interviews %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 sm:pl-6">
+                        <div class="flex items-center">
+                            <div class="h-9 w-9 flex-shrink-0 rounded-full bg-primary-100 flex items-center justify-center">
+                                <span class="text-sm font-medium text-primary-700">
+                                    {% if interview.application and interview.application.candidate %}
+                                        {{ interview.application.candidate.first_name[0] | upper }}{{ interview.application.candidate.last_name[0] | upper }}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">
+                                    {% if interview.application and interview.application.candidate %}
+                                        {{ interview.application.candidate.first_name }} {{ interview.application.candidate.last_name }}
+                                    {% else %}
+                                        Unknown Candidate
+                                    {% endif %}
+                                </p>
+                                {% if interview.application and interview.application.candidate and interview.application.candidate.email %}
+                                <p class="text-xs text-gray-500">{{ interview.application.candidate.email }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700">
+                        {% if interview.application and interview.application.job_posting %}
+                            <p class="font-medium">{{ interview.application.job_posting.title }}</p>
+                            {% if interview.application.job_posting.department %}
+                            <p class="text-xs text-gray-500">{{ interview.application.job_posting.department.name }}</p>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-gray-400">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700">
+                        {% if interview.interviewer %}
+                            <p class="font-medium">{{ interview.interviewer.username }}</p>
+                            {% if interview.interviewer.email %}
+                            <p class="text-xs text-gray-500">{{ interview.interviewer.email }}</p>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-gray-400">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700">
+                        {% if interview.scheduled_at %}
+                        <div class="flex items-center">
+                            <svg class="mr-1.5 h-4 w-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                            </svg>
+                            <div>
+                                <p class="font-medium">{{ interview.scheduled_at | format_date }}</p>
+                                <p class="text-xs text-gray-500">{{ interview.scheduled_at | format_datetime('%I:%M %p') }}</p>
+                            </div>
+                        </div>
+                        {% else %}
+                            <span class="text-gray-400">Not scheduled</span>
+                        {% endif %}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                        {% if interview.rating %}
+                        <div class="flex items-center">
+                            {% for i in range(1, 6) %}
+                                {% if i <= interview.rating %}
+                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                {% else %}
+                                <svg class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ml-1.5 text-xs font-medium text-gray-600">{{ interview.rating }}/5</span>
+                        </div>
+                        {% else %}
+                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">Not rated</span>
+                        {% endif %}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                        {% if interview.feedback_notes %}
+                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                            <svg class="mr-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                            Submitted
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+                            <svg class="mr-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            Pending
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <div class="flex items-center justify-end space-x-2">
+                            {% if current_user %}
+                                {% if not interview.feedback_notes and (current_user.role == 'admin' or current_user.role == 'hiring_manager' or (current_user.role == 'interviewer' and interview.interviewer and interview.interviewer.id == current_user.id)) %}
+                                <a href="/interviews/{{ interview.id }}/feedback" class="inline-flex items-center rounded-md bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-100 transition-colors" title="Submit Feedback">
+                                    <svg class="mr-1 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                    </svg>
+                                    Feedback
+                                </a>
+                                {% elif interview.feedback_notes and (current_user.role == 'admin' or current_user.role == 'hiring_manager') %}
+                                <a href="/interviews/{{ interview.id }}/feedback" class="inline-flex items-center rounded-md bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors" title="View Feedback">
+                                    <svg class="mr-1 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    </svg>
+                                    View
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if total_pages is defined and total_pages > 1 %}
+<nav class="mt-6 flex items-center justify-between" aria-label="Pagination">
+    <div class="hidden sm:block">
+        <p class="text-sm text-gray-700">
+            Showing page <span class="font-medium">{{ current_page }}</span> of <span class="font-medium">{{ total_pages }}</span>
+        </p>
+    </div>
+    <div class="flex flex-1 justify-between sm:justify-end space-x-3">
+        {% if current_page > 1 %}
+        <a href="/interviews?page={{ current_page - 1 }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status_filter={{ status_filter }}{% endif %}" class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors">
+            <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+            Previous
+        </a>
+        {% endif %}
+        {% if current_page < total_pages %}
+        <a href="/interviews?page={{ current_page + 1 }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status_filter={{ status_filter }}{% endif %}" class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors">
+            Next
+            <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+        </a>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-12 bg-white rounded-lg shadow ring-1 ring-black ring-opacity-5">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
+    </svg>
+    <h3 class="mt-3 text-sm font-semibold text-gray-900">No interviews found</h3>
+    <p class="mt-1 text-sm text-gray-500">
+        {% if search or status_filter %}
+            No interviews match your current filters. Try adjusting your search criteria.
+        {% else %}
+            No interviews have been scheduled yet.
+        {% endif %}
+    </p>
+    {% if current_user and current_user.role in ['admin', 'hiring_manager', 'recruiter'] %}
+    <div class="mt-6">
+        <a href="/interviews/schedule" class="inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors">
+            <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Schedule Interview
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}{% if candidate %}Edit Candidate{% else %}New Candidate{% endif %} — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <nav class="flex items-center space-x-2 text-sm text-gray-500">
+            <a href="/candidates" class="hover:text-gray-700 transition-colors">Candidates</a>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+            <span class="text-gray-900 font-medium">{% if candidate %}Edit Candidate{% else %}New Candidate{% endif %}</span>
+        </nav>
+    </div>
+
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h1 class="text-xl font-semibold text-gray-900">
+                {% if candidate %}Edit Candidate{% else %}Add New Candidate{% endif %}
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if candidate %}
+                    Update candidate information below.
+                {% else %}
+                    Fill in the details to add a new candidate to the system.
+                {% endif %}
+            </p>
+        </div>
+
+        <form method="POST" action="{% if candidate %}/candidates/{{ candidate.id }}{% else %}/candidates{% endif %}" class="px-6 py-5 space-y-6">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="first_name" class="block text-sm font-medium text-gray-700">
+                        First Name <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="first_name"
+                        id="first_name"
+                        required
+                        maxlength="64"
+                        value="{{ candidate.first_name if candidate else '' }}"
+                        placeholder="Enter first name"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    >
+                </div>
+
+                <div>
+                    <label for="last_name" class="block text-sm font-medium text-gray-700">
+                        Last Name <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="last_name"
+                        id="last_name"
+                        required
+                        maxlength="64"
+                        value="{{ candidate.last_name if candidate else '' }}"
+                        placeholder="Enter last name"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    >
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">
+                        Email Address <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        required
+                        maxlength="128"
+                        value="{{ candidate.email if candidate else '' }}"
+                        placeholder="candidate@example.com"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    >
+                </div>
+
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700">
+                        Phone Number
+                    </label>
+                    <input
+                        type="tel"
+                        name="phone"
+                        id="phone"
+                        maxlength="32"
+                        value="{{ candidate.phone if candidate and candidate.phone else '' }}"
+                        placeholder="+1 (555) 123-4567"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    >
+                </div>
+            </div>
+
+            <div>
+                <label for="linkedin_url" class="block text-sm font-medium text-gray-700">
+                    LinkedIn Profile URL
+                </label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                    </span>
+                    <input
+                        type="url"
+                        name="linkedin_url"
+                        id="linkedin_url"
+                        value="{{ candidate.linkedin_url if candidate and candidate.linkedin_url is defined and candidate.linkedin_url else '' }}"
+                        placeholder="https://linkedin.com/in/username"
+                        class="block w-full rounded-r-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    >
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Optional. Full URL to the candidate's LinkedIn profile.</p>
+            </div>
+
+            <div>
+                <label for="skills" class="block text-sm font-medium text-gray-700">
+                    Skills
+                </label>
+                <input
+                    type="text"
+                    name="skills"
+                    id="skills"
+                    value="{% if candidate and candidate.skills %}{% for skill in candidate.skills %}{{ skill.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}"
+                    placeholder="Python, FastAPI, SQL, Docker"
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                >
+                <p class="mt-1 text-xs text-gray-500">Enter skills separated by commas. New skills will be created automatically.</p>
+            </div>
+
+            <div>
+                <label for="resume_text" class="block text-sm font-medium text-gray-700">
+                    Resume / Summary
+                </label>
+                <textarea
+                    name="resume_text"
+                    id="resume_text"
+                    rows="8"
+                    placeholder="Paste the candidate's resume text or write a summary of their experience, education, and qualifications..."
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                >{{ candidate.resume_text if candidate and candidate.resume_text else '' }}</textarea>
+                <p class="mt-1 text-xs text-gray-500">Plain text or basic formatting. This will be stored as the candidate's resume content.</p>
+            </div>
+
+            <div class="flex items-center justify-end space-x-3 border-t border-gray-200 pt-5">
+                <a
+                    href="{% if candidate %}/candidates/{{ candidate.id }}{% else %}/candidates{% endif %}"
+                    class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                >
+                    Cancel
+                </a>
+                <button
+                    type="submit"
+                    class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                >
+                    {% if candidate %}
+                        <span class="flex items-center space-x-1">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                            <span>Update Candidate</span>
+                        </span>
+                    {% else %}
+                        <span class="flex items-center space-x-1">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            <span>Create Candidate</span>
+                        </span>
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

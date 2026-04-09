@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Application Pipeline — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Application Pipeline</h1>
+            <p class="mt-1 text-sm text-gray-500">Drag-free Kanban board — move candidates through hiring stages</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <form method="GET" action="/applications/kanban" class="flex items-center gap-2">
+                <label for="job_filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Job:</label>
+                <select id="job_filter" name="job_id" onchange="this.form.submit()" class="block w-full min-w-[200px] rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                    <option value="">All Jobs</option>
+                    {% for job in jobs %}
+                    <option value="{{ job.id }}" {% if selected_job_id and selected_job_id|string == job.id|string %}selected{% endif %}>{{ job.title }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="overflow-x-auto pb-4">
+    <div class="inline-flex gap-4 min-w-full">
+        {% set stages = ['Applied', 'Screening', 'Interviewing', 'Offered', 'Hired', 'Rejected'] %}
+        {% for stage in stages %}
+        {% set stage_lower = stage.lower() %}
+        {% set apps = board.get(stage, []) %}
+        <div class="flex-shrink-0 w-72 lg:w-80">
+            <div class="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between
+                    {% if stage_lower == 'applied' %}
+                        bg-blue-50
+                    {% elif stage_lower == 'screening' %}
+                        bg-purple-50
+                    {% elif stage_lower == 'interviewing' %}
+                        bg-yellow-50
+                    {% elif stage_lower == 'offered' %}
+                        bg-green-50
+                    {% elif stage_lower == 'hired' %}
+                        bg-emerald-50
+                    {% elif stage_lower == 'rejected' %}
+                        bg-red-50
+                    {% else %}
+                        bg-gray-50
+                    {% endif %}
+                ">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full
+                            {% if stage_lower == 'applied' %}
+                                bg-blue-500
+                            {% elif stage_lower == 'screening' %}
+                                bg-purple-500
+                            {% elif stage_lower == 'interviewing' %}
+                                bg-yellow-500
+                            {% elif stage_lower == 'offered' %}
+                                bg-green-500
+                            {% elif stage_lower == 'hired' %}
+                                bg-emerald-500
+                            {% elif stage_lower == 'rejected' %}
+                                bg-red-500
+                            {% else %}
+                                bg-gray-500
+                            {% endif %}
+                        "></span>
+                        <h2 class="text-sm font-semibold text-gray-900">{{ stage }}</h2>
+                    </div>
+                    <span class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium
+                        {% if stage_lower == 'applied' %}
+                            bg-blue-100 text-blue-800
+                        {% elif stage_lower == 'screening' %}
+                            bg-purple-100 text-purple-800
+                        {% elif stage_lower == 'interviewing' %}
+                            bg-yellow-100 text-yellow-800
+                        {% elif stage_lower == 'offered' %}
+                            bg-green-100 text-green-800
+                        {% elif stage_lower == 'hired' %}
+                            bg-emerald-100 text-emerald-800
+                        {% elif stage_lower == 'rejected' %}
+                            bg-red-100 text-red-800
+                        {% else %}
+                            bg-gray-100 text-gray-800
+                        {% endif %}
+                    ">{{ apps|length }}</span>
+                </div>
+
+                <div class="p-3 space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto">
+                    {% if apps %}
+                        {% for app in apps %}
+                        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="p-3">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="text-sm font-semibold text-gray-900 truncate">
+                                            {% if app.candidate %}
+                                                {{ app.candidate.first_name }} {{ app.candidate.last_name }}
+                                            {% else %}
+                                                Unknown Candidate
+                                            {% endif %}
+                                        </h3>
+                                        <p class="mt-0.5 text-xs text-gray-500 truncate">
+                                            {% if app.candidate and app.candidate.email %}
+                                                {{ app.candidate.email }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <span class="flex-shrink-0 text-xs text-gray-400">#{{ app.id }}</span>
+                                </div>
+
+                                <div class="mt-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="h-3.5 w-3.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                        <span class="text-xs text-gray-600 truncate">
+                                            {% if app.job_posting %}
+                                                {{ app.job_posting.title }}
+                                            {% else %}
+                                                No Job Assigned
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {% if app.applied_at %}
+                                <div class="mt-1.5">
+                                    <span class="text-xs text-gray-400">Applied {{ app.applied_at|time_ago }}</span>
+                                </div>
+                                {% endif %}
+
+                                {% if app.interviews and app.interviews|length > 0 %}
+                                <div class="mt-2 flex items-center gap-1.5">
+                                    <svg class="h-3.5 w-3.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                                    </svg>
+                                    <span class="text-xs text-gray-500">{{ app.interviews|length }} interview{{ 's' if app.interviews|length != 1 else '' }}</span>
+                                </div>
+                                {% endif %}
+
+                                <div class="mt-3 pt-3 border-t border-gray-100">
+                                    <form method="POST" action="/applications/{{ app.id }}/stage" class="flex items-center gap-2">
+                                        <label for="stage_select_{{ app.id }}" class="sr-only">Move to stage</label>
+                                        <select id="stage_select_{{ app.id }}" name="stage" class="block w-full rounded-md border border-gray-300 bg-white py-1.5 pl-2 pr-8 text-xs shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                                            {% for s in stages %}
+                                            <option value="{{ s }}" {% if s == stage %}selected{% endif %}>{{ s }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="inline-flex items-center rounded-md bg-primary-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 transition-colors">
+                                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">
+                            <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
+                            </svg>
+                            <p class="mt-2 text-xs text-gray-400">No applications</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if total_applications is defined %}
+<div class="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+    <span>Total: <strong class="text-gray-700">{{ total_applications }}</strong> application{{ 's' if total_applications != 1 else '' }}</span>
+    {% for stage in stages %}
+    {% set apps = board.get(stage, []) %}
+    {% if apps|length > 0 %}
+    <span class="flex items-center gap-1">
+        <span class="inline-block w-2 h-2 rounded-full
+            {% if stage.lower() == 'applied' %}
+                bg-blue-500
+            {% elif stage.lower() == 'screening' %}
+                bg-purple-500
+            {% elif stage.lower() == 'interviewing' %}
+                bg-yellow-500
+            {% elif stage.lower() == 'offered' %}
+                bg-green-500
+            {% elif stage.lower() == 'hired' %}
+                bg-emerald-500
+            {% elif stage.lower() == 'rejected' %}
+                bg-red-500
+            {% else %}
+                bg-gray-500
+            {% endif %}
+        "></span>
+        {{ stage }}: {{ apps|length }}
+    </span>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var cards = document.querySelectorAll('.hover\\:shadow-md');
+        cards.forEach(function(card) {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-1px)';
+                this.style.transition = 'transform 0.15s ease, box-shadow 0.15s ease';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
+{% endblock %}

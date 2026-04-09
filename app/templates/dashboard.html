@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+    <p class="mt-1 text-sm text-gray-600">Welcome back, {{ current_user.email }}.</p>
+</div>
+
+{# ── Summary Metric Cards (visible to all roles) ── #}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 rounded-md bg-blue-100 p-3">
+                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Open Jobs</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ stats.open_jobs | default(0) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 rounded-md bg-green-100 p-3">
+                <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total Candidates</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ stats.total_candidates | default(0) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 rounded-md bg-purple-100 p-3">
+                <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Active Applications</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ stats.active_applications | default(0) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 rounded-md bg-yellow-100 p-3">
+                <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Upcoming Interviews</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ stats.upcoming_interviews | default(0) }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Admin / Recruiter Dashboard ── #}
+{% if current_user.role in ['admin', 'super_admin', 'recruiter'] %}
+
+{# Pipeline Metrics #}
+<div class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Pipeline Overview</h2>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-x divide-y lg:divide-y-0 divide-gray-200">
+            {% for stage_item in pipeline_stages | default([]) %}
+            <div class="p-4 text-center">
+                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ get_stage_bg(stage_item.name) }} {{ get_stage_text(stage_item.name) }} mb-2">
+                    {{ format_stage_name(stage_item.name) }}
+                </span>
+                <p class="text-2xl font-bold text-gray-900">{{ stage_item.count | default(0) }}</p>
+            </div>
+            {% endfor %}
+            {% if not pipeline_stages %}
+            <div class="col-span-full p-6 text-center text-sm text-gray-500">No pipeline data available.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# Two-column layout: Recent Applications + Audit Log #}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    {# Recent Applications #}
+    <div>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Recent Applications</h2>
+            <a href="/applications" class="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors">View all &rarr;</a>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            {% if recent_applications %}
+            <ul class="divide-y divide-gray-200">
+                {% for app in recent_applications %}
+                <li class="px-4 py-3 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                {{ app.candidate.first_name | default('') }} {{ app.candidate.last_name | default('') }}
+                            </p>
+                            <p class="text-xs text-gray-500 truncate">{{ app.job_posting.title | default('Unknown Job') }}</p>
+                        </div>
+                        <div class="ml-3 flex-shrink-0">
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ get_stage_bg(app.stage) }} {{ get_stage_text(app.stage) }}">
+                                {{ format_stage_name(app.stage) }}
+                            </span>
+                        </div>
+                    </div>
+                    {% if app.applied_at %}
+                    <p class="mt-1 text-xs text-gray-400">{{ app.applied_at | time_ago }}</p>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="p-6 text-center text-sm text-gray-500">No recent applications.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Audit Log (Admin only) #}
+    {% if current_user.role in ['admin', 'super_admin'] %}
+    <div>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+            <a href="/audit-log" class="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors">View all &rarr;</a>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            {% if recent_audit_logs %}
+            <ul class="divide-y divide-gray-200">
+                {% for log in recent_audit_logs %}
+                <li class="px-4 py-3">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0 mt-0.5">
+                            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gray-100">
+                                <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm text-gray-900">{{ log.action }}</p>
+                            {% if log.details %}
+                            <p class="text-xs text-gray-500 truncate">{{ log.details | truncate_text(80) }}</p>
+                            {% endif %}
+                            <p class="mt-0.5 text-xs text-gray-400">
+                                {% if log.user %}{{ log.user.email | default('System') }}{% else %}System{% endif %}
+                                &middot;
+                                {% if log.timestamp %}{{ log.timestamp | time_ago }}{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="p-6 text-center text-sm text-gray-500">No recent activity.</div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    {# Recruiter: show quick actions instead of audit log #}
+    <div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="space-y-3">
+            <a href="/jobs/create" class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex-shrink-0 rounded-md bg-blue-100 p-2 mr-3">
+                    <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900">Create Job Posting</p>
+                    <p class="text-xs text-gray-500">Add a new open position</p>
+                </div>
+            </a>
+            <a href="/candidates/create" class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex-shrink-0 rounded-md bg-green-100 p-2 mr-3">
+                    <svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900">Add Candidate</p>
+                    <p class="text-xs text-gray-500">Register a new candidate profile</p>
+                </div>
+            </a>
+            <a href="/applications" class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex-shrink-0 rounded-md bg-purple-100 p-2 mr-3">
+                    <svg class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900">View Applications</p>
+                    <p class="text-xs text-gray-500">Manage the hiring pipeline</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{# ── Hiring Manager Dashboard ── #}
+{% if current_user.role == 'hiring_manager' %}
+
+{# My Job Requisitions #}
+<div class="mb-8">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-900">My Job Requisitions</h2>
+        <a href="/jobs" class="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors">View all &rarr;</a>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {% if my_jobs %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for job in my_jobs %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <p class="text-sm font-medium text-gray-900">{{ job.title }}</p>
+                            {% if job.department %}
+                            <p class="text-xs text-gray-500">{{ job.department.name | default('') }}</p>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {% set status_colors = get_status_color(job.status) %}
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ status_colors.bg }} {{ status_colors.text }}">
+                                {{ job.status | default('Draft') }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                            {{ job.applications | length if job.applications else 0 }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {% if job.created_at %}{{ job.created_at | format_date }}{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-6 text-center text-sm text-gray-500">You have no job requisitions yet.</div>
+        {% endif %}
+    </div>
+</div>
+
+{# Interview Status for My Jobs #}
+<div class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Interview Status</h2>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {% if my_interviews %}
+        <ul class="divide-y divide-gray-200">
+            {% for interview in my_interviews %}
+            <li class="px-4 py-3 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900">
+                            {% if interview.application and interview.application.candidate %}
+                            {{ interview.application.candidate.first_name | default('') }} {{ interview.application.candidate.last_name | default('') }}
+                            {% else %}
+                            Unknown Candidate
+                            {% endif %}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            {% if interview.application and interview.application.job_posting %}
+                            {{ interview.application.job_posting.title | default('') }}
+                            {% endif %}
+                            &middot;
+                            {% if interview.interviewer %}{{ interview.interviewer.email | default('Unassigned') }}{% endif %}
+                        </p>
+                    </div>
+                    <div class="ml-3 flex-shrink-0 text-right">
+                        {% if interview.scheduled_at %}
+                        <p class="text-sm text-gray-700">{{ interview.scheduled_at | format_datetime }}</p>
+                        {% endif %}
+                        {% if interview.rating %}
+                        <div class="flex items-center mt-0.5">
+                            {% for i in range(1, 6) %}
+                            <svg class="h-3.5 w-3.5 {% if i <= interview.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800">Pending Feedback</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="p-6 text-center text-sm text-gray-500">No interviews scheduled for your requisitions.</div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{# ── Interviewer Dashboard ── #}
+{% if current_user.role == 'interviewer' %}
+
+{# Pending Feedback Alert #}
+{% if pending_feedback_count | default(0) > 0 %}
+<div class="mb-6 rounded-md bg-yellow-50 border border-yellow-200 p-4" role="alert">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-yellow-800">Feedback Required</h3>
+            <p class="mt-1 text-sm text-yellow-700">
+                You have <strong>{{ pending_feedback_count }}</strong> interview{{ 's' if pending_feedback_count != 1 else '' }} awaiting your feedback. Please submit your evaluations promptly.
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# Upcoming Interviews #}
+<div class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">My Upcoming Interviews</h2>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {% if upcoming_interviews %}
+        <ul class="divide-y divide-gray-200">
+            {% for interview in upcoming_interviews %}
+            <li class="px-4 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center space-x-2">
+                            <p class="text-sm font-medium text-gray-900">
+                                {% if interview.application and interview.application.candidate %}
+                                {{ interview.application.candidate.first_name | default('') }} {{ interview.application.candidate.last_name | default('') }}
+                                {% else %}
+                                Unknown Candidate
+                                {% endif %}
+                            </p>
+                            {% if interview.application %}
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ get_stage_bg(interview.application.stage) }} {{ get_stage_text(interview.application.stage) }}">
+                                {{ format_stage_name(interview.application.stage) }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <p class="mt-0.5 text-xs text-gray-500">
+                            {% if interview.application and interview.application.job_posting %}
+                            {{ interview.application.job_posting.title | default('') }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="ml-4 flex-shrink-0 text-right">
+                        {% if interview.scheduled_at %}
+                        <p class="text-sm font-medium text-gray-700">{{ interview.scheduled_at | format_date('%b %d, %Y') }}</p>
+                        <p class="text-xs text-gray-500">{{ interview.scheduled_at | format_date('%I:%M %p') }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if not interview.rating %}
+                <div class="mt-2">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-800">
+                        <svg class="mr-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5" />
+                        </svg>
+                        Feedback pending
+                    </span>
+                </div>
+                {% else %}
+                <div class="mt-2 flex items-center">
+                    <span class="text-xs text-gray-500 mr-1">Your rating:</span>
+                    {% for i in range(1, 6) %}
+                    <svg class="h-3.5 w-3.5 {% if i <= interview.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="p-6 text-center">
+            <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+            <p class="mt-2 text-sm text-gray-500">No upcoming interviews scheduled.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{# ── Viewer Dashboard ── #}
+{% if current_user.role == 'viewer' %}
+<div class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Browse</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="/jobs" class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-5 hover:bg-gray-50 transition-colors">
+            <div class="flex-shrink-0 rounded-md bg-blue-100 p-3 mr-4">
+                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-900">Job Postings</p>
+                <p class="text-xs text-gray-500">View open positions</p>
+            </div>
+        </a>
+        <a href="/candidates" class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-5 hover:bg-gray-50 transition-colors">
+            <div class="flex-shrink-0 rounded-md bg-green-100 p-3 mr-4">
+                <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-900">Candidates</p>
+                <p class="text-xs text-gray-500">Browse candidate profiles</p>
+            </div>
+        </a>
+        <a href="/applications" class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-5 hover:bg-gray-50 transition-colors">
+            <div class="flex-shrink-0 rounded-md bg-purple-100 p-3 mr-4">
+                <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-900">Applications</p>
+                <p class="text-xs text-gray-500">View application statuses</p>
+            </div>
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
